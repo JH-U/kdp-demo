@@ -1,24 +1,23 @@
 package org.demo.security.authentication.config;
 
 import jakarta.servlet.Filter;
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 import org.demo.security.authentication.handler.exception.CustomAuthenticationExceptionHandler;
 import org.demo.security.authentication.handler.exception.CustomAuthorizationExceptionHandler;
 import org.demo.security.authentication.handler.exception.CustomSecurityExceptionHandler;
 import org.demo.security.authentication.handler.login.LoginFailHandler;
 import org.demo.security.authentication.handler.login.LoginSuccessHandler;
 import org.demo.security.authentication.handler.login.sms.SmsCodeAuthenticationFilter;
+import org.demo.security.authentication.handler.login.sms.SmsCodeAuthenticationProvider;
 import org.demo.security.authentication.handler.login.username.UsernameAuthenticationFilter;
+import org.demo.security.authentication.handler.login.username.UsernameAuthenticationProvider;
 import org.demo.security.authentication.handler.resourceapi.openapi1.OpenApi1AuthenticationFilter;
 import org.demo.security.authentication.handler.resourceapi.openapi2.OpenApi2AuthenticationFilter;
 import org.demo.security.authentication.service.JwtService;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.authentication.AuthenticationProvider;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.ProviderManager;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
@@ -28,10 +27,10 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.access.AccessDeniedHandler;
-import org.springframework.security.web.authentication.AbstractAuthenticationProcessingFilter;
 import org.springframework.security.web.authentication.logout.LogoutFilter;
 import org.springframework.security.web.context.SecurityContextHolderFilter;
 import org.springframework.security.web.savedrequest.NullRequestCache;
+import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 
 @Configuration
 @EnableWebSecurity
@@ -46,6 +45,7 @@ public class CustomWebSecurityConfig {
   private final AuthenticationEntryPoint authenticationExceptionHandler = new CustomAuthenticationExceptionHandler();
   private final AccessDeniedHandler authorizationExceptionHandler = new CustomAuthorizationExceptionHandler();
   private final Filter globalSpringSecurityExceptionHandler = new CustomSecurityExceptionHandler();
+
   /** 禁用不必要的默认filter，处理异常响应内容 */
   private void commonHttpSetting(HttpSecurity http) throws Exception {
     // 禁用SpringSecurity默认filter。这些filter都是非前后端分离项目的产物，用不上.
@@ -97,50 +97,40 @@ public class CustomWebSecurityConfig {
     return http.build();
   }
 
-  private static final String USERNAME_LOGIN_PATH = "/user/login/username";
-  private static final String SMS_LOGIN_PATH = "/user/login/sms";
+
   /** 登录api */
   @Bean
   public SecurityFilterChain loginFilterChain(HttpSecurity http) throws Exception {
-    // 使用securityMatcher限定当前配置作用的路径
-    http.securityMatcher(USERNAME_LOGIN_PATH, SMS_LOGIN_PATH)
-        .authorizeHttpRequests(authorize -> authorize.anyRequest().authenticated());
     commonHttpSetting(http);
 
+    String usernameLoginPath = "/user/login/username";
+    String smsLoginPath = "/user/login/sms";
+
+    // 使用securityMatcher限定当前配置作用的路径
+    http.securityMatcher(usernameLoginPath, smsLoginPath)
+        .authorizeHttpRequests(authorize -> authorize.anyRequest().authenticated());
+
+    LoginSuccessHandler loginSuccessHandler = applicationContext.getBean(LoginSuccessHandler.class);
+    LoginFailHandler loginFailHandler = applicationContext.getBean(LoginFailHandler.class);
+
     // 加一个登录方式。用户名、密码登录
-    http.addFilterBefore(createLoginFilter(USERNAME_LOGIN_PATH), LogoutFilter.class);
+    UsernameAuthenticationFilter usernameLoginFilter = new UsernameAuthenticationFilter(
+        new AntPathRequestMatcher(usernameLoginPath, HttpMethod.POST.name()),
+        new ProviderManager(
+            List.of(applicationContext.getBean(UsernameAuthenticationProvider.class))),
+        loginSuccessHandler,
+        loginFailHandler);
+    http.addFilterBefore(usernameLoginFilter, LogoutFilter.class);
 
     // 加一个登录方式。短信验证码 登录
-    http.addFilterBefore(createLoginFilter(SMS_LOGIN_PATH), LogoutFilter.class);
+    SmsCodeAuthenticationFilter smsLoginFilter = new SmsCodeAuthenticationFilter(
+        new AntPathRequestMatcher(smsLoginPath, HttpMethod.POST.name()),
+        new ProviderManager(
+            List.of(applicationContext.getBean(SmsCodeAuthenticationProvider.class))),
+        loginSuccessHandler,
+        loginFailHandler);
+    http.addFilterBefore(smsLoginFilter, LogoutFilter.class);
     return http.build();
-  }
-
-  public Filter createLoginFilter(String path) {
-    AbstractAuthenticationProcessingFilter filter = null;
-    if (path.equals(USERNAME_LOGIN_PATH)) {
-      filter = new UsernameAuthenticationFilter(path);
-    } else if (path.equals(SMS_LOGIN_PATH)) {
-      filter = new SmsCodeAuthenticationFilter(path);
-    } else {
-      throw new RuntimeException("Not supported login path: " + path);
-    }
-    // 指定将负责认证的authenticationManager
-    filter.setAuthenticationManager(authenticationManager());
-    // 登录成功后，要执行的代码
-    filter.setAuthenticationSuccessHandler(applicationContext.getBean(LoginSuccessHandler.class));
-    // 登录失败后，要执行的代码
-    filter.setAuthenticationFailureHandler(applicationContext.getBean(LoginFailHandler.class));
-    return filter;
-  }
-
-  @Bean
-  public AuthenticationManager authenticationManager() {
-    List<AuthenticationProvider> providers = new ArrayList<>();
-    // 更方便简单的注册provider示例：直接获取所有AuthenticationProvider的bean
-    Map<String, AuthenticationProvider> beansMap = applicationContext.getBeansOfType(
-        AuthenticationProvider.class);
-    providers.addAll(beansMap.values());
-    return new ProviderManager(providers);
   }
 
   @Bean

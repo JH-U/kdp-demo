@@ -10,17 +10,26 @@ import org.demo.security.common.web.util.JSON;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpMethod;
+import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.web.authentication.AbstractAuthenticationProcessingFilter;
+import org.springframework.security.web.authentication.AuthenticationFailureHandler;
+import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 
 public class SmsCodeAuthenticationFilter extends AbstractAuthenticationProcessingFilter {
 
   private static final Logger logger = LoggerFactory.getLogger(SmsCodeAuthenticationFilter.class);
 
-  public SmsCodeAuthenticationFilter(String path) {
-    super(new AntPathRequestMatcher(path, HttpMethod.POST.name()));
+  public SmsCodeAuthenticationFilter(AntPathRequestMatcher pathRequestMatcher,
+      AuthenticationManager authenticationManager,
+      AuthenticationSuccessHandler authenticationSuccessHandler,
+      AuthenticationFailureHandler authenticationFailureHandler) {
+    super(pathRequestMatcher);
+    setAuthenticationManager(authenticationManager);
+    setAuthenticationSuccessHandler(authenticationSuccessHandler);
+    setAuthenticationFailureHandler(authenticationFailureHandler);
   }
 
   @Override
