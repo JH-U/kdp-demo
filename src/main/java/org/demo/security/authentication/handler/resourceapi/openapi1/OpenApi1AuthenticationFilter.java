@@ -8,7 +8,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import org.demo.security.authentication.service.JwtService;
 import org.demo.security.authentication.handler.login.UserLoginInfo;
-import org.demo.security.common.web.util.ExceptionTool;
+import org.demo.security.common.web.exception.ExceptionTool;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;

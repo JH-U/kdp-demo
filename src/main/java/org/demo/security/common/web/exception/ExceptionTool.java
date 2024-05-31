@@ -1,6 +1,5 @@
-package org.demo.security.common.web.util;
+package org.demo.security.common.web.exception;
 
-import org.demo.security.common.web.exception.BaseException;
 import org.springframework.http.HttpStatus;
 
 /**

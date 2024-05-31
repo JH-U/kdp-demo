@@ -10,7 +10,7 @@ import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 import org.demo.security.authentication.service.JwtService;
 import org.demo.security.common.web.model.Result;
-import org.demo.security.common.web.util.ExceptionTool;
+import org.demo.security.common.web.exception.ExceptionTool;
 import org.demo.security.common.web.util.JSON;
 import org.demo.security.common.web.util.TimeTool;
 import org.springframework.beans.factory.annotation.Autowired;

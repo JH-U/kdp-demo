@@ -15,7 +15,7 @@ import java.util.Base64;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
-import org.demo.security.common.web.util.ExceptionTool;
+import org.demo.security.common.web.exception.ExceptionTool;
 import org.demo.security.common.web.util.JSON;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
