@@ -3,12 +3,12 @@ package org.demo.security.authentication.handler.resourceapi.openapi1;
 import org.demo.security.authentication.handler.login.UserLoginInfo;
 import org.springframework.security.authentication.AbstractAuthenticationToken;
 
-public class OpenApi1Authentication extends AbstractAuthenticationToken {
+public class MyJwtAuthentication extends AbstractAuthenticationToken {
 
   private String jwtToken; // 前端传过来
   private UserLoginInfo currentUser; // 认证成功后，后台从数据库获取信息
 
-  public OpenApi1Authentication() {
+  public MyJwtAuthentication() {
     // 权限，用不上，直接null
     super(null);
   }

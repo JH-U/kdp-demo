@@ -12,7 +12,7 @@ import org.springframework.security.core.AuthenticationException;
 import org.springframework.stereotype.Component;
 
 @Component
-public class SmsCodeAuthenticationProvider implements AuthenticationProvider {
+public class SmsAuthenticationProvider implements AuthenticationProvider {
 
   @Autowired
   private UserService userService;
@@ -33,7 +33,7 @@ public class SmsCodeAuthenticationProvider implements AuthenticationProvider {
       }
       UserLoginInfo currentUser = JSON.convert(user, UserLoginInfo.class);
 
-      SmsCodeAuthentication token = new SmsCodeAuthentication();
+      SmsAuthentication token = new SmsAuthentication();
       token.setCurrentUser(currentUser);
       token.setAuthenticated(true); // 认证通过，一定要设成true
       return token;
@@ -44,7 +44,7 @@ public class SmsCodeAuthenticationProvider implements AuthenticationProvider {
 
   @Override
   public boolean supports(Class<?> authentication) {
-    return SmsCodeAuthentication.class.isAssignableFrom(authentication);
+    return SmsAuthentication.class.isAssignableFrom(authentication);
   }
 
   private boolean validateSmsCode(String smsCode) {

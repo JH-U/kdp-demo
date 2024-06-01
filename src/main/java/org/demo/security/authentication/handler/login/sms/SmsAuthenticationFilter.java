@@ -9,7 +9,6 @@ import java.util.stream.Collectors;
 import org.demo.security.common.web.util.JSON;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
@@ -18,11 +17,11 @@ import org.springframework.security.web.authentication.AuthenticationFailureHand
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 
-public class SmsCodeAuthenticationFilter extends AbstractAuthenticationProcessingFilter {
+public class SmsAuthenticationFilter extends AbstractAuthenticationProcessingFilter {
 
-  private static final Logger logger = LoggerFactory.getLogger(SmsCodeAuthenticationFilter.class);
+  private static final Logger logger = LoggerFactory.getLogger(SmsAuthenticationFilter.class);
 
-  public SmsCodeAuthenticationFilter(AntPathRequestMatcher pathRequestMatcher,
+  public SmsAuthenticationFilter(AntPathRequestMatcher pathRequestMatcher,
       AuthenticationManager authenticationManager,
       AuthenticationSuccessHandler authenticationSuccessHandler,
       AuthenticationFailureHandler authenticationFailureHandler) {
@@ -44,7 +43,7 @@ public class SmsCodeAuthenticationFilter extends AbstractAuthenticationProcessin
     String phoneNumber = requestMapData.get("phone").toString();
     String smsCode = requestMapData.get("captcha").toString();
 
-    SmsCodeAuthentication authentication = new SmsCodeAuthentication();
+    SmsAuthentication authentication = new SmsAuthentication();
     authentication.setPhone(phoneNumber);
     authentication.setSmsCode(smsCode);
     authentication.setAuthenticated(false); // 提取参数阶段，authenticated一定是false

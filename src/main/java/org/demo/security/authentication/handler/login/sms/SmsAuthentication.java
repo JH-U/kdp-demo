@@ -3,13 +3,13 @@ package org.demo.security.authentication.handler.login.sms;
 import org.demo.security.authentication.handler.login.UserLoginInfo;
 import org.springframework.security.authentication.AbstractAuthenticationToken;
 
-public class SmsCodeAuthentication extends AbstractAuthenticationToken {
+public class SmsAuthentication extends AbstractAuthenticationToken {
 
   private String phone;
   private String smsCode;
   private UserLoginInfo currentUser;
 
-  public SmsCodeAuthentication() {
+  public SmsAuthentication() {
     super(null); // 权限，用不上，直接null
   }
 

@@ -16,13 +16,13 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.util.StringUtils;
 import org.springframework.web.filter.OncePerRequestFilter;
 
-public class OpenApi1AuthenticationFilter extends OncePerRequestFilter {
+public class MyJwtAuthenticationFilter extends OncePerRequestFilter {
 
-  private static final Logger logger = LoggerFactory.getLogger(OpenApi1AuthenticationFilter.class);
+  private static final Logger logger = LoggerFactory.getLogger(MyJwtAuthenticationFilter.class);
 
   private JwtService jwtService;
 
-  public OpenApi1AuthenticationFilter(JwtService jwtService) {
+  public MyJwtAuthenticationFilter(JwtService jwtService) {
     this.jwtService = jwtService;
   }
 
@@ -39,14 +39,16 @@ public class OpenApi1AuthenticationFilter extends OncePerRequestFilter {
       jwtToken = jwtToken.substring(7);
     }
 
-    // 认证开始前，按SpringSecurity设计，要将Authentication设置到SecurityContext里面去。
-    OpenApi1Authentication authentication = new OpenApi1Authentication();
-    authentication.setJwtToken(jwtToken);
+
     try {
       UserLoginInfo userLoginInfo = jwtService.verifyJwt(jwtToken, UserLoginInfo.class);
+
+      MyJwtAuthentication authentication = new MyJwtAuthentication();
+      authentication.setJwtToken(jwtToken);
       authentication.setAuthenticated(true); // 设置true，认证通过。
       authentication.setCurrentUser(userLoginInfo);
-      SecurityContextHolder.getContext().setAuthentication(authentication); // 一定要设置到ThreadLocal
+      // 认证通过后，一定要设置到SecurityContextHolder里面去。
+      SecurityContextHolder.getContext().setAuthentication(authentication);
     }catch (ExpiredJwtException e) {
       // 转换异常，指定code，让前端知道时token过期，去调刷新token接口
       ExceptionTool.throwException("jwt过期", HttpStatus.UNAUTHORIZED, "token.expired");

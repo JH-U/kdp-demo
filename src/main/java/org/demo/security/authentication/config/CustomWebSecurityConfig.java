@@ -7,11 +7,11 @@ import org.demo.security.authentication.handler.exception.CustomAuthorizationExc
 import org.demo.security.authentication.handler.exception.CustomSecurityExceptionHandler;
 import org.demo.security.authentication.handler.login.LoginFailHandler;
 import org.demo.security.authentication.handler.login.LoginSuccessHandler;
-import org.demo.security.authentication.handler.login.sms.SmsCodeAuthenticationFilter;
-import org.demo.security.authentication.handler.login.sms.SmsCodeAuthenticationProvider;
+import org.demo.security.authentication.handler.login.sms.SmsAuthenticationFilter;
+import org.demo.security.authentication.handler.login.sms.SmsAuthenticationProvider;
 import org.demo.security.authentication.handler.login.username.UsernameAuthenticationFilter;
 import org.demo.security.authentication.handler.login.username.UsernameAuthenticationProvider;
-import org.demo.security.authentication.handler.resourceapi.openapi1.OpenApi1AuthenticationFilter;
+import org.demo.security.authentication.handler.resourceapi.openapi1.MyJwtAuthenticationFilter;
 import org.demo.security.authentication.handler.resourceapi.openapi2.OpenApi2AuthenticationFilter;
 import org.demo.security.authentication.service.JwtService;
 import org.springframework.context.ApplicationContext;
@@ -27,7 +27,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.access.AccessDeniedHandler;
-import org.springframework.security.web.authentication.logout.LogoutFilter;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.security.web.context.SecurityContextHolderFilter;
 import org.springframework.security.web.savedrequest.NullRequestCache;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
@@ -85,19 +85,6 @@ public class CustomWebSecurityConfig {
   public PasswordEncoder passwordEncoder() {
     return new BCryptPasswordEncoder();
   }
-
-  /** 不鉴权的api */
-  @Bean
-  public SecurityFilterChain publicApiFilterChain(HttpSecurity http) throws Exception {
-    commonHttpSetting(http);
-    http
-        // 使用securityMatcher限定当前配置作用的路径
-        .securityMatcher("/open-api/business-3")
-        .authorizeHttpRequests(authorize -> authorize.anyRequest().permitAll());
-    return http.build();
-  }
-
-
   /** 登录api */
   @Bean
   public SecurityFilterChain loginFilterChain(HttpSecurity http) throws Exception {
@@ -120,45 +107,55 @@ public class CustomWebSecurityConfig {
             List.of(applicationContext.getBean(UsernameAuthenticationProvider.class))),
         loginSuccessHandler,
         loginFailHandler);
-    http.addFilterBefore(usernameLoginFilter, LogoutFilter.class);
+    http.addFilterBefore(usernameLoginFilter, UsernamePasswordAuthenticationFilter.class);
 
     // 加一个登录方式。短信验证码 登录
-    SmsCodeAuthenticationFilter smsLoginFilter = new SmsCodeAuthenticationFilter(
+    SmsAuthenticationFilter smsLoginFilter = new SmsAuthenticationFilter(
         new AntPathRequestMatcher(smsLoginPath, HttpMethod.POST.name()),
         new ProviderManager(
-            List.of(applicationContext.getBean(SmsCodeAuthenticationProvider.class))),
+            List.of(applicationContext.getBean(SmsAuthenticationProvider.class))),
         loginSuccessHandler,
         loginFailHandler);
-    http.addFilterBefore(smsLoginFilter, LogoutFilter.class);
+    http.addFilterBefore(smsLoginFilter, UsernamePasswordAuthenticationFilter.class);
     return http.build();
   }
 
+
   @Bean
-  public SecurityFilterChain openApi1FilterChain(HttpSecurity http) throws Exception {
+  public SecurityFilterChain myApiFilterChain(HttpSecurity http) throws Exception {
     // 使用securityMatcher限定当前配置作用的路径
     http.securityMatcher("/open-api/business-1")
         .authorizeHttpRequests(authorize -> authorize.anyRequest().authenticated());
     commonHttpSetting(http);
 
-    OpenApi1AuthenticationFilter openApi1Filter = new OpenApi1AuthenticationFilter(
+    MyJwtAuthenticationFilter openApi1Filter = new MyJwtAuthenticationFilter(
         applicationContext.getBean(JwtService.class));
     // 加一个登录方式。用户名、密码登录
-    http.addFilterBefore(openApi1Filter, LogoutFilter.class);
+    http.addFilterBefore(openApi1Filter, UsernamePasswordAuthenticationFilter.class);
     return http.build();
   }
 
-  /** 默认鉴权过滤器 */
   @Bean
-  public SecurityFilterChain defaultFilterChain(HttpSecurity http) throws Exception {
+  public SecurityFilterChain thirdApiFilterChain(HttpSecurity http) throws Exception {
     // 不使用securityMatcher限定当前配置作用的路径。所有没有匹配上指定SecurityFilterChain的请求，都走这里鉴权
-    http
+    http.securityMatcher("/open-api/business-2")
         .authorizeHttpRequests(authorize -> authorize.anyRequest().authenticated());
     commonHttpSetting(http);
 
-    OpenApi2AuthenticationFilter openApiFilter = new OpenApi2AuthenticationFilter(
-        applicationContext.getBean(JwtService.class));
+    OpenApi2AuthenticationFilter openApiFilter = new OpenApi2AuthenticationFilter();
     // 加一个登录方式。用户名、密码登录
-    http.addFilterBefore(openApiFilter, LogoutFilter.class);
+    http.addFilterBefore(openApiFilter, UsernamePasswordAuthenticationFilter.class);
+    return http.build();
+  }
+
+  /** 不鉴权的api */
+  @Bean
+  public SecurityFilterChain publicApiFilterChain(HttpSecurity http) throws Exception {
+    commonHttpSetting(http);
+    http
+        // 使用securityMatcher限定当前配置作用的路径
+        .securityMatcher("/open-api/business-3")
+        .authorizeHttpRequests(authorize -> authorize.anyRequest().permitAll());
     return http.build();
   }
 }

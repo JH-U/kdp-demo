@@ -1,5 +1,6 @@
 package org.demo.security.test;
 
+import org.demo.security.authentication.handler.resourceapi.openapi2.OpenApi2LoginInfo;
 import org.demo.security.common.web.model.Result;
 import org.demo.security.common.web.model.ResultBuilder;
 import org.demo.security.authentication.handler.login.UserLoginInfo;
@@ -20,20 +21,22 @@ public class TestDemoController {
         .getContext()
         .getAuthentication()
         .getPrincipal();
-    System.out.println("登录信息：" + JSON.stringify(userLoginInfo));
+    System.out.println("自家用户登录信息：" + JSON.stringify(userLoginInfo));
     return ResultBuilder.aResult()
+        .data(userLoginInfo)
         .msg("${test.message.a:测试国际化消息 A}")
         .build();
   }
 
   @GetMapping("/business-2")
   public Result getB() {
-    UserLoginInfo userLoginInfo = (UserLoginInfo)SecurityContextHolder
+    OpenApi2LoginInfo userLoginInfo = (OpenApi2LoginInfo)SecurityContextHolder
         .getContext()
         .getAuthentication()
         .getPrincipal();
-    System.out.println("登录信息：" + JSON.stringify(userLoginInfo));
+    System.out.println("三方API登录信息：" + JSON.stringify(userLoginInfo));
     return ResultBuilder.aResult()
+        .data(userLoginInfo)
         .msg("SUCCESS B")
         .build();
   }
@@ -45,8 +48,11 @@ public class TestDemoController {
         .getAuthentication();
     System.out.println("登录信息：" + JSON.stringify(authentication));
     return ResultBuilder.aResult()
+        .code(Result.SUCCESS_CODE)
+        .data("模拟访问成功的响应数据")
         .msg("匿名接口，所有人可公开访问")
         .build();
   }
+
 
 }
