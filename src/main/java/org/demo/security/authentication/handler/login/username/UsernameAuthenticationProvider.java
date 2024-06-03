@@ -31,7 +31,7 @@ public class UsernameAuthenticationProvider implements AuthenticationProvider {
   @Override
   public Authentication authenticate(Authentication authentication) throws AuthenticationException {
     // 用户提交的用户名 + 密码：
-    String username = authentication.getName();
+    String username = (String)authentication.getPrincipal();
     String password = (String) authentication.getCredentials();
 
     // 查数据库，匹配用户信息
