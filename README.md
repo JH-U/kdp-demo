@@ -27,6 +27,14 @@
 1. 拦截了所有请求，如何放行？
 2. 错误拦截返回的数据结构不统一
 
+### Gitee授权登录请求
+
+1. 到(地址：https://gitee.com/oauth/applications)Gitee个人中心 -> 设置 -> 三方应用 中，创建应用，获取到ClientId/ClientSecret填写到yml配置中（login.gitee）
+    
+    其中，重定向地址填：http://localhost:8080/gitee-callback.html
+
+2. 启动项目，访问 http://localhost:8080，可测试gitee授权登录
+
 ## 外部文档
 
 SpringSecurity中文文档：

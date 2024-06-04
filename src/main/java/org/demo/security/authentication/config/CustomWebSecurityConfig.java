@@ -7,6 +7,8 @@ import org.demo.security.authentication.handler.exception.CustomAuthorizationExc
 import org.demo.security.authentication.handler.exception.CustomSecurityExceptionHandler;
 import org.demo.security.authentication.handler.login.LoginFailHandler;
 import org.demo.security.authentication.handler.login.LoginSuccessHandler;
+import org.demo.security.authentication.handler.login.gitee.GiteeAuthenticationFilter;
+import org.demo.security.authentication.handler.login.gitee.GiteeAuthenticationProvider;
 import org.demo.security.authentication.handler.login.sms.SmsAuthenticationFilter;
 import org.demo.security.authentication.handler.login.sms.SmsAuthenticationProvider;
 import org.demo.security.authentication.handler.login.username.UsernameAuthenticationFilter;
@@ -89,12 +91,8 @@ public class CustomWebSecurityConfig {
   @Bean
   public SecurityFilterChain loginFilterChain(HttpSecurity http) throws Exception {
     commonHttpSetting(http);
-
-    String usernameLoginPath = "/user/login/username";
-    String smsLoginPath = "/user/login/sms";
-
     // 使用securityMatcher限定当前配置作用的路径
-    http.securityMatcher(usernameLoginPath, smsLoginPath)
+    http.securityMatcher("/user/login/*")
         .authorizeHttpRequests(authorize -> authorize.anyRequest().authenticated());
 
     LoginSuccessHandler loginSuccessHandler = applicationContext.getBean(LoginSuccessHandler.class);
@@ -102,7 +100,7 @@ public class CustomWebSecurityConfig {
 
     // 加一个登录方式。用户名、密码登录
     UsernameAuthenticationFilter usernameLoginFilter = new UsernameAuthenticationFilter(
-        new AntPathRequestMatcher(usernameLoginPath, HttpMethod.POST.name()),
+        new AntPathRequestMatcher("/user/login/username", HttpMethod.POST.name()),
         new ProviderManager(
             List.of(applicationContext.getBean(UsernameAuthenticationProvider.class))),
         loginSuccessHandler,
@@ -111,12 +109,22 @@ public class CustomWebSecurityConfig {
 
     // 加一个登录方式。短信验证码 登录
     SmsAuthenticationFilter smsLoginFilter = new SmsAuthenticationFilter(
-        new AntPathRequestMatcher(smsLoginPath, HttpMethod.POST.name()),
+        new AntPathRequestMatcher("/user/login/sms", HttpMethod.POST.name()),
         new ProviderManager(
             List.of(applicationContext.getBean(SmsAuthenticationProvider.class))),
         loginSuccessHandler,
         loginFailHandler);
     http.addFilterBefore(smsLoginFilter, UsernamePasswordAuthenticationFilter.class);
+
+
+    // 加一个登录方式。Gitee 登录
+    GiteeAuthenticationFilter giteeFilter = new GiteeAuthenticationFilter(
+        new AntPathRequestMatcher("/user/login/gitee", HttpMethod.POST.name()),
+        new ProviderManager(
+            List.of(applicationContext.getBean(GiteeAuthenticationProvider.class))),
+        loginSuccessHandler,
+        loginFailHandler);
+    http.addFilterBefore(giteeFilter, UsernamePasswordAuthenticationFilter.class);
     return http.build();
   }
 

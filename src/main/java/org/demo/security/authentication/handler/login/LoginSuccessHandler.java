@@ -62,6 +62,13 @@ public class LoginSuccessHandler extends
     responseData.put("token", generateToken(currentUser));
     responseData.put("refreshToken", generateRefreshToken(currentUser));
 
+    // 一些特殊的登录参数。比如三方登录，需要额外返回一个字段是否需要跳转的绑定已有账号页面
+    Object details = authentication.getDetails();
+    if (details instanceof Map) {
+      Map detailsMap = (Map)details;
+      responseData.putAll(detailsMap);
+    }
+
     // 虽然APPLICATION_JSON_UTF8_VALUE过时了，但也要用。因为Postman工具不声明utf-8编码就会出现乱码
     response.setContentType(MediaType.APPLICATION_JSON_UTF8_VALUE);
     PrintWriter writer = response.getWriter();
