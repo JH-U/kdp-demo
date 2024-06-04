@@ -33,6 +33,8 @@
     
     其中，重定向地址填：http://localhost:8080/gitee-callback.html
 
+![img.png](doc/images/img.png)
+
 2. 启动项目，访问 http://localhost:8080，可测试gitee授权登录
 
 ## 外部文档
