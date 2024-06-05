@@ -1,8 +1,8 @@
 package org.demo.security.authentication.handler.login.gitee;
 
+import java.util.HashMap;
 import java.util.Map;
 import org.demo.security.common.web.exception.ExceptionTool;
-import org.demo.security.common.web.model.User;
 import org.demo.security.common.web.util.JSON;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
@@ -43,15 +43,19 @@ public class GiteeApiClient {
     return accessToken.toString();
   }
 
-  public String getUserOpenId(String token) {
+  public Map<String, Object> getThirdUserInfo(String token) {
     // {"id":1483966,"login":"用户名"}
     String responseJson = sendGetRequest("https://gitee.com/api/v5/user?access_token=" + token);
     Map<String, Object> responseMap = JSON.parseToMap(responseJson);
     Object openId = responseMap.get("id");
     if (openId == null) {
-      ExceptionTool.throwException("{gitee.get.open.id.fail:Gitee授权失败！}");
+      return null;
     }
-    return openId.toString();
+
+    HashMap<String, Object> thirdUser = new HashMap<>();
+    thirdUser.put("openId", openId);
+    thirdUser.put("nickname", responseMap.get("login"));
+    return thirdUser;
   }
 
   public String sendPostRequest(String url, Map<String, Object> body) {

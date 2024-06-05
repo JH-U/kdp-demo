@@ -25,6 +25,20 @@ oauth2标准定义：
 
 https://datatracker.ietf.org/doc/html/rfc6749
 
+使用AI生成代码，提示词：
+
+对话一：
+
+springboot，如何部署html页面？随便给我一个html，不要thymeleaf！
+
+对话二：
+
+非常好！我正在测试oauth2三方授权登录，需要你帮我实现前端页面代码
+1. 在上面的html代码中，在页面正中间创建一个按钮：Gitee授权登录
+2. 点击按钮时，先GET请求http://localhost:8080/public/login/gitee/config接口，这个会返回json数据：{"data": {"clientId":"clientId...","redirectUri":"redirectUri..."}}。 得到json数据后替换替换这个url（https://gitee.com/oauth/authorize?client_id={client_id}&redirect_uri={redirect_uri}&response_type=code）请求参数中的动态参数{client_id}和{redirect_uri}，得到一个三方授权页面的完整url，最后重定向到这个url。用户汇在这个页面中进行确认授权
+3. 创建一个新的html页面gitee-callback.html
+4. 当用户授权完毕，gitee服务器会重定向到一个这个新的页面（http://localhost:8080/gitee-callback.html），同时url上面会带上请求参数code。当重定向请求到达后，需要自动提取url上面的code，同时发post请求到后台服务器（http://localhost/user/login/gitee），请求body数据{code:"..."}，响应数据{"message": "登录信息..."}，得到响应数据后，提取中message字段中的数据，重定向到一个新的页面home-page.html，同时在home-page.html中展示message信息（home-page.html也请帮我实现）
+
 
 ### 3. 支持多种资源API鉴权
 

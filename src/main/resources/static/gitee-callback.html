@@ -52,9 +52,12 @@
     })
     .then(response => response.json())
     .then(data => {
+      console.log(data)
       const message = data.message;
+      const nickname = data.data.nickname;
+      const msg = message + ' 你好，' + nickname
       // 重定向到home-page.html并携带message信息
-      window.location.href = `home-page.html?message=${encodeURIComponent(message)}`;
+      window.location.href = `home-page.html?message=${encodeURIComponent(msg)}`;
     })
     .catch(error => console.error('Error:', error));
   } else {
