@@ -1,4 +1,4 @@
-package org.demo.security.test;
+package org.demo.security.authentication.handler.login.gitee;
 
 import java.util.HashMap;
 import org.demo.security.common.web.model.Result;
@@ -9,8 +9,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@RequestMapping("/public/login")
-public class LoginController {
+@RequestMapping("/public/login/gitee")
+public class GiteeLoginConfigController {
 
   @Value("${login.gitee.clientId}")
   private String giteeClientId;

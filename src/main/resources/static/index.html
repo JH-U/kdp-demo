@@ -51,7 +51,7 @@
 </div>
 <script>
   document.getElementById('gitee-login').addEventListener('click', function() {
-    fetch('http://localhost:8080/public/login/config')
+    fetch('http://localhost:8080/public/login/gitee/config')
     .then(response => response.json())
     .then(data => {
       const clientId = data.data.clientId;

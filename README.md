@@ -17,6 +17,14 @@
 
    比如：用户名+密码登录，手机号+短信登录
 
+2.1 使用oauth2登录
+
+支持Oauth2登录的方式比如：微信扫码登录、QQ登录、facebook登录、google账号登录、Apple账号登录、Gitee登录
+
+oauth2标准定义：
+
+https://datatracker.ietf.org/doc/html/rfc6749
+
 
 ### 3. 支持多种资源API鉴权
 
