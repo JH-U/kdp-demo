@@ -25,6 +25,8 @@ oauth2标准定义：
 
 https://datatracker.ietf.org/doc/html/rfc6749
 
+![oauth2.png](doc/images/oauth2.png)
+
 使用AI生成代码，提示词：
 
 对话一：
