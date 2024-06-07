@@ -66,3 +66,8 @@ SpringSecurity中文文档：
 
 
 https://springdoc.cn/spring-security/servlet/architecture.html
+
+
+配套视频讲解：
+
+https://www.bilibili.com/video/BV1Ux4y1E7kV

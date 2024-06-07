@@ -171,10 +171,10 @@ public class CustomWebSecurityConfig {
 
   /** 其余路径，走这个默认过滤链 */
   @Bean
-  @Order(Integer.MAX_VALUE) // 最后加载
+  @Order(Integer.MAX_VALUE) // 这个过滤链最后加载
   public SecurityFilterChain defaultApiFilterChain(HttpSecurity http) throws Exception {
     commonHttpSetting(http);
-    http // 不用securityMatcher表示缺省值，匹配不上其他过滤链的，都走这个过滤链
+    http // 不用securityMatcher表示缺省值，匹配不上其他过滤链时，都走这个过滤链
         .authorizeHttpRequests(authorize -> authorize.anyRequest().authenticated());
     http.addFilterBefore(new OpenApi3AuthenticationFilter(),
         UsernamePasswordAuthenticationFilter.class);
