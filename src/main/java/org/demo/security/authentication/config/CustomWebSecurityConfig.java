@@ -15,10 +15,12 @@ import org.demo.security.authentication.handler.login.username.UsernameAuthentic
 import org.demo.security.authentication.handler.login.username.UsernameAuthenticationProvider;
 import org.demo.security.authentication.handler.resourceapi.openapi1.MyJwtAuthenticationFilter;
 import org.demo.security.authentication.handler.resourceapi.openapi2.OpenApi2AuthenticationFilter;
+import org.demo.security.authentication.handler.resourceapi.openapi3.OpenApi3AuthenticationFilter;
 import org.demo.security.authentication.service.JwtService;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.core.annotation.Order;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.ProviderManager;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -164,6 +166,18 @@ public class CustomWebSecurityConfig {
         // 使用securityMatcher限定当前配置作用的路径
         .securityMatcher("/open-api/business-3")
         .authorizeHttpRequests(authorize -> authorize.anyRequest().permitAll());
+    return http.build();
+  }
+
+  /** 其余路径，走这个默认过滤链 */
+  @Bean
+  @Order(Integer.MAX_VALUE) // 最后加载
+  public SecurityFilterChain defaultApiFilterChain(HttpSecurity http) throws Exception {
+    commonHttpSetting(http);
+    http // 不用securityMatcher表示缺省值，匹配不上其他过滤链的，都走这个过滤链
+        .authorizeHttpRequests(authorize -> authorize.anyRequest().authenticated());
+    http.addFilterBefore(new OpenApi3AuthenticationFilter(),
+        UsernamePasswordAuthenticationFilter.class);
     return http.build();
   }
 }

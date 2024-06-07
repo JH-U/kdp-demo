@@ -54,5 +54,14 @@ public class TestDemoController {
         .build();
   }
 
+  @GetMapping("/business-4")
+  public Result getD() {
+    return ResultBuilder.aResult()
+        .code(Result.SUCCESS_CODE)
+        .data("模拟 未知 api")
+        .msg("default api ...")
+        .build();
+  }
+
 
 }
