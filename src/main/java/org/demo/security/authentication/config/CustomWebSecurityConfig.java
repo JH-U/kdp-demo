@@ -176,8 +176,7 @@ public class CustomWebSecurityConfig {
     commonHttpSetting(http);
     http // 不用securityMatcher表示缺省值，匹配不上其他过滤链时，都走这个过滤链
         .authorizeHttpRequests(authorize -> authorize.anyRequest().authenticated());
-    http.addFilterBefore(new OpenApi3AuthenticationFilter(),
-        UsernamePasswordAuthenticationFilter.class);
+    http.addFilterBefore(new OpenApi3AuthenticationFilter(), UsernamePasswordAuthenticationFilter.class);
     return http.build();
   }
 }
